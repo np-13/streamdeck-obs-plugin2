@@ -100,6 +100,14 @@ streamdeck::handlers::obs_frontend::obs_frontend()
 						std::bind(&streamdeck::handlers::obs_frontend::streaming_active, this, std::placeholders::_1,
 								  std::placeholders::_2));
 
+	server->handle_sync("obs.frontend.virtualcam.start", std::bind(&streamdeck::handlers::obs_frontend::virtualcam_start,
+																   this, std::placeholders::_1, std::placeholders::_2));
+	server->handle_sync("obs.frontend.virtualcam.stop", std::bind(&streamdeck::handlers::obs_frontend::virtualcam_stop,
+																  this, std::placeholders::_1, std::placeholders::_2));
+	server->handle_sync("obs.frontend.virtualcam.active",
+						std::bind(&streamdeck::handlers::obs_frontend::virtualcam_active, this, std::placeholders::_1,
+								  std::placeholders::_2));
+
 	server->handle_sync("obs.frontend.recording.start", std::bind(&streamdeck::handlers::obs_frontend::recording_start,
 																  this, std::placeholders::_1, std::placeholders::_2));
 	server->handle_sync("obs.frontend.recording.stop", std::bind(&streamdeck::handlers::obs_frontend::recording_stop,
@@ -186,6 +194,11 @@ void streamdeck::handlers::obs_frontend::handle(enum obs_frontend_event event)
 		nlohmann::json reply = nlohmann::json::object();
 
 		switch (event) {
+		case OBS_FRONTEND_EVENT_VIRTUALCAM_STARTED:
+		case OBS_FRONTEND_EVENT_VIRTUALCAM_STOPPED:
+			method = "obs.frontend.event.virtualcam";
+			break;
+
 		case OBS_FRONTEND_EVENT_STREAMING_STARTING:
 		case OBS_FRONTEND_EVENT_STREAMING_STARTED:
 		case OBS_FRONTEND_EVENT_STREAMING_STOPPING:
@@ -315,6 +328,7 @@ void streamdeck::handlers::obs_frontend::handle(enum obs_frontend_event event)
 			reply["state"] = "STARTING";
 			break;
 
+		case OBS_FRONTEND_EVENT_VIRTUALCAM_STARTED:
 		case OBS_FRONTEND_EVENT_STREAMING_STARTED:
 		case OBS_FRONTEND_EVENT_RECORDING_STARTED:
 		case OBS_FRONTEND_EVENT_REPLAY_BUFFER_STARTED:
@@ -327,6 +341,7 @@ void streamdeck::handlers::obs_frontend::handle(enum obs_frontend_event event)
 			reply["state"] = "STOPPING";
 			break;
 
+		case OBS_FRONTEND_EVENT_VIRTUALCAM_STOPPED:
 		case OBS_FRONTEND_EVENT_STREAMING_STOPPED:
 		case OBS_FRONTEND_EVENT_RECORDING_STOPPED:
 		case OBS_FRONTEND_EVENT_REPLAY_BUFFER_STOPPED:
@@ -354,6 +369,49 @@ void streamdeck::handlers::obs_frontend::handle(enum obs_frontend_event event)
 	} catch (std::exception const& ex) {
 		DLOG(LOG_DEBUG, "Error: %s", ex.what());
 	}
+}
+
+void streamdeck::handlers::obs_frontend::virtualcam_start(std::shared_ptr<streamdeck::jsonrpc::request>,
+														  std::shared_ptr<streamdeck::jsonrpc::response> res)
+{
+	/** obs.frontend.virtualcam.start
+	 *
+	 * @return {bool} `true` if Virtual Camera was started, otherwise `false`.
+	 */
+
+	if (!obs_frontend_virtualcam_active()) {
+		obs_frontend_start_virtualcam();
+		res->set_result(true);
+	} else {
+		res->set_result(false);
+	}
+}
+
+void streamdeck::handlers::obs_frontend::virtualcam_stop(std::shared_ptr<streamdeck::jsonrpc::request>,
+														 std::shared_ptr<streamdeck::jsonrpc::response> res)
+{
+	/** obs.frontend.virtualcam.stop
+	 *
+	 * @return {bool} `true` if Virtual Camera stopped, otherwise `false`.
+	 */
+
+	if (obs_frontend_virtualcam_active()) {
+		obs_frontend_stop_virtualcam();
+		res->set_result(true);
+	} else {
+		res->set_result(false);
+	}
+}
+
+void streamdeck::handlers::obs_frontend::virtualcam_active(std::shared_ptr<streamdeck::jsonrpc::request>,
+														   std::shared_ptr<streamdeck::jsonrpc::response> res)
+{
+	/** obs.frontend.virtualcam.active
+	 *
+	 * @return {bool} `true` if Virtual Camera is active, otherwise `false`.
+	 */
+
+	res->set_result(obs_frontend_virtualcam_active());
 }
 
 void streamdeck::handlers::obs_frontend::streaming_start(std::shared_ptr<streamdeck::jsonrpc::request>,

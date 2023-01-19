@@ -2,6 +2,24 @@
 
 ## Functions
 
+### obs.frontend.virtualcam.start
+
+##### Parameters
+##### Returns
+A <small>boolean</small> which is `true` if the virtual camera was inactive and is now started, otherwise `false`.
+
+### obs.frontend.virtualcam.stop
+
+##### Parameters
+##### Returns
+A <small>boolean</small> which is `true` if the virtual camera was active and is now stopped, otherwise `false`.
+
+### obs.frontend.virtualcam.active
+
+##### Parameters
+##### Returns
+A <small>boolean</small> which is `true` if the virtual camera is active, otherwise `false`.
+
 ### obs.frontend.streaming.start
 
 ##### Parameters
@@ -163,6 +181,14 @@ Take a screenshot of a source or the current program output. The behavior is und
 Always returns the <small>boolean</small> `true`.
 
 ## Events / Notifications
+### obs.frontend.event.virtualcam
+Called whenever the OBS Studio frontend changes the virtual camera status.
+
+#### Parameters
+* {string} **state** One of the following:
+  * **"STARTED"**: Virtual camera has started.
+  * **"STOPPED"**: Virtual camera has stopped.
+
 ### obs.frontend.event.streaming
 Called whenever the OBS Studio frontend changes the streaming status.
 

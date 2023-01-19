@@ -33,6 +33,13 @@ namespace streamdeck {
 			static void handle_frontend_event(enum obs_frontend_event event, void* private_data);
 			void        handle(enum obs_frontend_event event);
 
+			void virtualcam_start(std::shared_ptr<streamdeck::jsonrpc::request>,
+								  std::shared_ptr<streamdeck::jsonrpc::response>);
+			void virtualcam_stop(std::shared_ptr<streamdeck::jsonrpc::request>,
+								 std::shared_ptr<streamdeck::jsonrpc::response>);
+			void virtualcam_active(std::shared_ptr<streamdeck::jsonrpc::request>,
+								   std::shared_ptr<streamdeck::jsonrpc::response>);
+
 			void streaming_start(std::shared_ptr<streamdeck::jsonrpc::request>,
 								 std::shared_ptr<streamdeck::jsonrpc::response>);
 			void streaming_stop(std::shared_ptr<streamdeck::jsonrpc::request>,
